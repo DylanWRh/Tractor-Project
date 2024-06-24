@@ -1,14 +1,22 @@
 import subprocess
 import json
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--model1', type=str)
+parser.add_argument('--model2', type=str)
+parser.add_argument('--model3', type=str)
+parser.add_argument('--model4', type=str)
+args = parser.parse_args()
 
 i = 0
 
 # 初始化玩家
 bot_models = {
-    0: './checkpoint-base/model_3284.pt',
-    1: './checkpoint-base/model_3284.pt',
-    2: './checkpoint-base/model_3284.pt',
-    3: './checkpoint-base/model_3284.pt',
+    0: args.model1,
+    1: args.model2,
+    2: args.model3,
+    3: args.model4,
 }
 bot_logs = {
     0: {
@@ -149,5 +157,5 @@ while True:
     if judge_output['command'] == 'finish':
         break
 
-print('Score', judge_output['score'])
+print('Score', judge_output['content'])
 
