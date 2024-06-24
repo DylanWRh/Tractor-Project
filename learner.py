@@ -14,6 +14,7 @@ class Learner(Process):
         super(Learner, self).__init__()
         self.replay_buffer = replay_buffer
         self.config = config
+        self.kl_coeff = config['kl_coeff']
     
     def run(self):
         # create model pool
@@ -53,21 +54,45 @@ class Learner(Process):
             
             # calculate PPO loss
             model.train(True) # Batch Norm training mode
-            old_logits, _ = model(states)
-            old_probs = F.softmax(old_logits, dim = 1).gather(1, actions)
-            old_log_probs = torch.log(old_probs).detach()
+            with torch.no_grad():
+                old_logits, _ = model(states)
+                old_probs = F.softmax(old_logits, dim = 1).gather(1, actions)
+                old_log_probs = torch.log(old_probs).detach()
+
             for _ in range(self.config['epochs']):
                 logits, values = model(states)
                 action_dist = torch.distributions.Categorical(logits = logits)
                 probs = F.softmax(logits, dim = 1).gather(1, actions)
                 log_probs = torch.log(probs)
+                
                 ratio = torch.exp(log_probs - old_log_probs)
                 surr1 = ratio * advs
                 surr2 = torch.clamp(ratio, 1 - self.config['clip'], 1 + self.config['clip']) * advs
                 policy_loss = -torch.mean(torch.min(surr1, surr2))
+                
                 value_loss = torch.mean(F.mse_loss(values.squeeze(-1), targets))
+                
                 entropy_loss = -torch.mean(action_dist.entropy())
-                loss = policy_loss + self.config['value_coeff'] * value_loss + self.config['entropy_coeff'] * entropy_loss
+                
+                # PPO-Penalty
+                kl_divergence = torch.mean(old_probs * (old_log_probs - log_probs))
+                kl_penalty = self.kl_coeff * kl_divergence
+                
+                loss = policy_loss + self.kl_coeff * value_loss + \
+                    self.kl_coeff * entropy_loss + kl_penalty
+                
+                # loss = policy_loss + self.config['value_coeff'] * value_loss + \
+                #     self.config['entropy_coeff'] * entropy_loss
+
+                # Adjust KL coefficient
+                if kl_divergence > 1.5 * self.kl_coeff:
+                    self.kl_coeff *= 1.5
+                elif kl_divergence < 0.5 * self.kl_coeff:
+                    self.kl_coeff *= 0.5
+
+                # Clamp KL coefficient to be within [1e-4, 10]
+                self.kl_coeff = min(max(self.kl_coeff, 1e-4), 10)
+                
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()

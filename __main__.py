@@ -6,6 +6,7 @@ from wrapper import cardWrapper
 from mvGen import move_generator
 import numpy as np
 from collections import Counter
+import utils
 
 cardscale = ['A','2','3','4','5','6','7','8','9','0','J','Q','K']
 suitset = ['s','h','c','d']
@@ -115,7 +116,7 @@ def cover_Pub(old_public, deck):
 ## 直接盖回去
     return old_public
 
-def playCard(history, hold, played, selfid, wrapper, mv_gen, model):
+def playCard(history, hold, played, selfid, wrapper, mv_gen, model, level):
     # generating obs
     obs = {
         "id": selfid,
@@ -124,6 +125,7 @@ def playCard(history, hold, played, selfid, wrapper, mv_gen, model):
         "major": [Num2Poker(p) for p in Major],
         "played": [[Num2Poker(p) for p in cardset] for cardset in played]
     }
+
     # generating action_options
     action_options = get_action_options(hold, history, selfid, mv_gen) 
     # generating state
@@ -131,6 +133,64 @@ def playCard(history, hold, played, selfid, wrapper, mv_gen, model):
     obs_mat, action_mask = wrapper.obsWrap(obs, action_options)
     state['observation'] = torch.tensor(obs_mat, dtype = torch.float).unsqueeze(0)
     state['action_mask'] = torch.tensor(action_mask, dtype = torch.float).unsqueeze(0)
+
+
+    # print(obs['history'])
+    # print(obs['deck'])
+    # print(obs['major'])
+    # print(obs['played'])
+    # print([level])
+
+    # print(action_options)
+
+    # 如果是最后一名出牌且其他玩家处存在“分”，则打出最小的能得分的牌
+    has_score = False
+    action = None
+    if len(history) == 3:       # 是最后一名
+        for card_other in obs['history']:
+            for card in card_other:
+                if utils.has_score(card):
+                    has_score = True
+    
+        # 如果存在“分”
+        if has_score:
+            # 如果队友的牌已经足够大
+            if (
+                utils.is_larger(obs['history'][1], obs['history'][0], obs['major'], level) and \
+                utils.is_larger(obs['history'][1], obs['history'][2], obs['major'], level)
+            ):
+                # 寻找最小的牌
+                action = action_options[0]
+                for a in action_options:
+                    if (utils.is_larger(action, a, obs["major"], level)):
+                        action = a
+                response = action_intpt(action, hold)
+                return response
+            # 队友的牌不够大
+            else:
+                # 寻找最小的能得分的牌
+                action = None
+                for a in action_options:
+                    # 可以得分
+                    if (
+                        utils.is_larger(a, obs['history'][0], obs['major'], level) and \
+                        utils.is_larger(a, obs['history'][2], obs['major'], level)
+                    ):
+                        # 第一个可以得分的牌
+                        if action is None:
+                            action = a
+                        else:
+                            if (utils.is_larger(action, a, obs["major"], level)):
+                                action = a
+                response = action_intpt(action, hold)
+                return response
+        # print(action)
+        # action = ['jo']
+        # print(action_intpt(action, hold))
+        # response = ['jo']
+        # print([Poker2Num(p, hold) for p in response])
+        # print([Num2Poker(p) for p in response])
+
     # getting actions
     action = obs2action(model, state)
     response = action_intpt(action_options[action], hold)
@@ -178,7 +238,7 @@ else:
 
 # loading model
 model = CNNModel()
-data_dir = '/data/Tractor/baseline.pt' # to be modified
+data_dir = './checkpoint/model_327.pt' # to be modified
 model.load_state_dict(torch.load(data_dir, map_location = torch.device('cpu')))
 
 hold = []
@@ -235,7 +295,7 @@ elif curr_request["stage"] == "play":
             played[(history[3]+player_rec) % 4].extend(history[1][player_rec])
     history_curr = history[1]
     
-    response = playCard(history_curr, hold, played, selfid, card_wrapper, mv_gen, model)
+    response = playCard(history_curr, hold, played, selfid, card_wrapper, mv_gen, model, level)
 
 print(json.dumps({
     "response": response
