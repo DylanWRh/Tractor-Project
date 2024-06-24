@@ -182,8 +182,9 @@ def playCard(history, hold, played, selfid, wrapper, mv_gen, model, level):
                         else:
                             if (utils.is_larger(action, a, obs["major"], level)):
                                 action = a
-                response = action_intpt(action, hold)
-                return response
+                if action is not None:
+                    response = action_intpt(action, hold)
+                    return response
         # print(action)
         # action = ['jo']
         # print(action_intpt(action, hold))

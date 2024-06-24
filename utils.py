@@ -160,7 +160,7 @@ def is_larger_single(card1, card2, major, level):
     else:
         # card1 是级牌/大小王
         if (
-            is_level(card1, major, level) or \
+            is_level(card1, level) or \
             is_joker(card1)
         ):
             return True
