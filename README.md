@@ -17,7 +17,7 @@ Run the following script to train a model
 python train.py
 ```
 
-Run the following script to run local game, the args in `bash_run.sh` should be changed to your trained model paths
+Run the following script to run local game, the args in `batch_run.sh` should be changed to your trained model paths
 ```bash
-./bash_run.sh
+./batch_run.sh
 ```
