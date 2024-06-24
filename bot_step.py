@@ -145,6 +145,7 @@ def playCard(history, hold, played, selfid, wrapper, mv_gen, model, level):
     # print(action_options)
 
     # 如果是最后一名出牌且其他玩家处存在“分”，则打出最小的能得分的牌
+    ''' The rule-based modified step
     has_score = False
     action = None
     if len(history) == 3:       # 是最后一名
@@ -186,6 +187,7 @@ def playCard(history, hold, played, selfid, wrapper, mv_gen, model, level):
                 if action is not None:
                     response = action_intpt(action, hold)
                     return response
+        '''
         # print(action)
         # action = ['jo']
         # print(action_intpt(action, hold))

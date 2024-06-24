@@ -40,9 +40,7 @@ bot_logs = {
 # 初始化对局
 judge_log = {
     "log": [],
-    "initdata": {
-        "seed": "969877809"
-    }
+    "initdata": {}
 }
 judge_output = subprocess.run(
     ['python', 'judge_step.py', json.dumps(judge_log)], 
