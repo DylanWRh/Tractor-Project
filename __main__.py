@@ -111,10 +111,19 @@ def call_Snatch(get_card, deck, called, snatched, level):
                 response = [get_card, (get_card + 54) % 108]
     return response
 
-def cover_Pub(old_public, deck):
-# old_public: raw publiccard (list[int])
-## 直接盖回去
-    return old_public
+def cover_Pub(old_public, deck, level, major):
+    # old_public: raw publiccard (list[int])
+    # 选择最小的牌盖回去
+    all_cards = [Num2Poker(i) for i in deck + old_public]
+    for i in range(len(all_cards)):
+        for j in range(len(all_cards) - 1, i, -1):
+            if utils.is_larger_single(all_cards[i], all_cards[j], major, level):
+                tmp = all_cards[i]
+                all_cards[i] = all_cards[j]
+                all_cards[j] = tmp
+    to_cover = all_cards[:8]
+    res = Poker2Num_seq(to_cover, deck + old_public)
+    return res
 
 def playCard(history, hold, played, selfid, wrapper, mv_gen, model, level):
     # generating obs
@@ -272,8 +281,10 @@ if curr_request["stage"] == "deal":
     level = curr_request["global"]["level"]
     response = call_Snatch(get_card, hold, called, snatched, level)
 elif curr_request["stage"] == "cover":
+    level = curr_request["global"]["level"]
+    major = curr_request["global"]["banking"]["major"]
     publiccard = curr_request["deliver"]
-    response = cover_Pub(publiccard, hold)
+    response = cover_Pub(publiccard, hold, level, major)
 elif curr_request["stage"] == "play":
     level = curr_request["global"]["level"]
     major = curr_request["global"]["banking"]["major"]

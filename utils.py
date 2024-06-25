@@ -80,6 +80,8 @@ def is_joker(card):
 
 # 获取主花色
 def get_major_suit(major):
+    if isinstance(major, str):
+        return major if major in 'dhcs' else None
     if (len(major) <= 2):
         return None
     suits = [s[0] for s in major]
@@ -147,15 +149,9 @@ def is_larger_single(card1, card2, major, level):
             is_joker(card1)
         ):
             return True
-        # card1是非级牌主花色牌
-        elif (
-            is_major_suit(card1, major) and \
-            not is_level(card1, level)
-        ):
-            return (mappings[card1[1]] > mappings[card2[1]])
         # card1是其他牌
         else:
-            return False
+            return (mappings[card1[1]] > mappings[card2[1]])
     # 如果card2是其他牌
     else:
         # card1 是级牌/大小王
