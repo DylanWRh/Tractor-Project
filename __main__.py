@@ -194,6 +194,9 @@ def playCard(history, hold, played, selfid, wrapper, mv_gen, model, level):
                 if action is not None:
                     response = action_intpt(action, hold)
                     return response
+        # 如果不存在“分”，
+        
+        
         # print(action)
         # action = ['jo']
         # print(action_intpt(action, hold))
