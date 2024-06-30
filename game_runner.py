@@ -7,6 +7,10 @@ parser.add_argument('--model1', type=str)
 parser.add_argument('--model2', type=str)
 parser.add_argument('--model3', type=str)
 parser.add_argument('--model4', type=str)
+parser.add_argument('--policy1', type=str, default='bot_step.py')
+parser.add_argument('--policy2', type=str, default='bot_step.py')
+parser.add_argument('--policy3', type=str, default='bot_step.py')
+parser.add_argument('--policy4', type=str, default='bot_step.py')
 args = parser.parse_args()
 
 i = 0
@@ -36,6 +40,12 @@ bot_logs = {
         "responses": []
     },
 }
+bot_policy = {
+    0: args.policy1,
+    1: args.policy2,
+    2: args.policy3,
+    3: args.policy4,
+}
 
 # 初始化对局
 judge_log = {
@@ -62,7 +72,7 @@ while True:
     )
     # 玩家接受发牌
     bot_output = subprocess.run(
-        ['python', 'bot_step.py', json.dumps(bot_logs[int(cur_bot)]), bot_models[int(cur_bot)]],
+        ['python', bot_policy[int(cur_bot)], json.dumps(bot_logs[int(cur_bot)]), bot_models[int(cur_bot)]],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True).stdout
     bot_output = json.loads(bot_output)
 
@@ -119,7 +129,7 @@ while True:
 
     # 玩家出牌
     bot_output = subprocess.run(
-        ['python', 'bot_step.py', json.dumps(bot_logs[int(cur_bot)]), bot_models[int(cur_bot)]],
+        ['python', bot_policy[int(cur_bot)], json.dumps(bot_logs[int(cur_bot)]), bot_models[int(cur_bot)]],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True).stdout
     bot_output = json.loads(bot_output)
     # 更新玩家输入

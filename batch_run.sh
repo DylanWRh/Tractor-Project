@@ -56,22 +56,58 @@
 #                              --model1 './checkpoint-pnt/model_28456.pt' >> pnt10-pnt1.out
 # done
 
-for i in $(seq 0 10); do
-    python -u game_runner.py --model1 './checkpoint-base/model_62860.pt' \
-                             --model2 './checkpoint-pnt/model_62301.pt' \
-                             --model3 './checkpoint-base/model_62860.pt' \
-                             --model4 './checkpoint-pnt/model_62301.pt' >> clpmax-pntmax.out
-    python -u game_runner.py --model2 './checkpoint-base/model_62860.pt' \
-                             --model3 './checkpoint-pnt/model_62301.pt' \
-                             --model4 './checkpoint-base/model_62860.pt' \
-                             --model1 './checkpoint-pnt/model_62301.pt' >> pntmax-clpmax.out 
+# for i in $(seq 0 10); do
+#     python -u game_runner.py --model1 './checkpoint-base/model_62860.pt' \
+#                              --model2 './checkpoint-pnt/model_62301.pt' \
+#                              --model3 './checkpoint-base/model_62860.pt' \
+#                              --model4 './checkpoint-pnt/model_62301.pt' >> clpmax-pntmax.out
+#     python -u game_runner.py --model2 './checkpoint-base/model_62860.pt' \
+#                              --model3 './checkpoint-pnt/model_62301.pt' \
+#                              --model4 './checkpoint-base/model_62860.pt' \
+#                              --model1 './checkpoint-pnt/model_62301.pt' >> pntmax-clpmax.out 
     
-    python -u game_runner.py --model1 './checkpoint-pnt/model_28456.pt' \
+#     python -u game_runner.py --model1 './checkpoint-pnt/model_28456.pt' \
+#                              --model2 './checkpoint-pnt/model_62301.pt' \
+#                              --model3 './checkpoint-pnt/model_28456.pt' \
+#                              --model4 './checkpoint-pnt/model_62301.pt' >> pnt10-pntmax.out
+#     python -u game_runner.py --model2 './checkpoint-pnt/model_28456.pt' \
+#                              --model3 './checkpoint-pnt/model_62301.pt' \
+#                              --model4 './checkpoint-pnt/model_28456.pt' \
+#                              --model1 './checkpoint-pnt/model_62301.pt' >> pntmax-pnt10.out 
+# done 
+
+for i in $(seq 0 10); do
+    python -u game_runner.py --model1 './checkpoint-pnt/model_62301.pt' \
                              --model2 './checkpoint-pnt/model_62301.pt' \
-                             --model3 './checkpoint-pnt/model_28456.pt' \
-                             --model4 './checkpoint-pnt/model_62301.pt' >> pnt10-pntmax.out
-    python -u game_runner.py --model2 './checkpoint-pnt/model_28456.pt' \
                              --model3 './checkpoint-pnt/model_62301.pt' \
-                             --model4 './checkpoint-pnt/model_28456.pt' \
-                             --model1 './checkpoint-pnt/model_62301.pt' >> pntmax-pnt10.out 
+                             --model4 './checkpoint-pnt/model_62301.pt' \
+                             --policy1 'bot_step.py' \
+                             --policy2 'botnew_step.py' \
+                             --policy3 'bot_step.py' \
+                             --policy4 'botnew_step.py' >> old-new-pnt.out
+    python -u game_runner.py --model2 './checkpoint-pnt/model_62301.pt' \
+                             --model3 './checkpoint-pnt/model_62301.pt' \
+                             --model4 './checkpoint-pnt/model_62301.pt' \
+                             --model1 './checkpoint-pnt/model_62301.pt' \
+                             --policy2 'bot_step.py' \
+                             --policy3 'botnew_step.py' \
+                             --policy4 'bot_step.py' \
+                             --policy1 'botnew_step.py' >> new-old-pnt.out
+    
+    python -u game_runner.py --model1 './checkpoint-base/model_62860.pt' \
+                             --model2 './checkpoint-base/model_62860.pt' \
+                             --model3 './checkpoint-base/model_62860.pt' \
+                             --model4 './checkpoint-base/model_62860.pt' \
+                             --policy1 'bot_step.py' \
+                             --policy2 'botnew_step.py' \
+                             --policy3 'bot_step.py' \
+                             --policy4 'botnew_step.py' >> old-new-clip.out
+    python -u game_runner.py --model2 './checkpoint-base/model_62860.pt' \
+                             --model3 './checkpoint-base/model_62860.pt' \
+                             --model4 './checkpoint-base/model_62860.pt' \
+                             --model1 './checkpoint-base/model_62860.pt' \
+                             --policy2 'bot_step.py' \
+                             --policy3 'botnew_step.py' \
+                             --policy4 'bot_step.py' \
+                             --policy1 'botnew_step.py' >> new-old-clip.out
 done 
